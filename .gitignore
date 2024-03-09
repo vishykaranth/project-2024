@@ -98,3 +98,7 @@
 /.idea/project-2024.iml
 /springboot-jpa/spring-boot-jpa-postgresql.iml
 /.idea/vcs.xml
+/spring-boot-upload-csv-files/target/classes/
+/item-service/target/classes/
+/item-service/item-service.iml
+/.idea/
