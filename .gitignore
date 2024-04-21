@@ -102,3 +102,7 @@
 /item-service/target/classes/
 /item-service/item-service.iml
 /.idea/
+/spring-boot3-jwt/target/classes/
+/item-service/target/
+/study-materials/study-materials.iml
+/spring-boot3-jwt/spring-boot3-jwt.iml
