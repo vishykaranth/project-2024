@@ -1,0 +1,8 @@
+.DS_Store
+.AppleDouble
+.LSOverride
+.idea
+.ipynb_checkpoints
+*/.pytest_cache/
+git-user.sh
+/excluded_resources/*
