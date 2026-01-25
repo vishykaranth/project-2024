@@ -1,0 +1,2 @@
+## PE Answers 
+- I detect hot keys by looking at skew in traffic distribution across keys and partitions, not averages. I correlate access frequency, latency, and node-level saturation using metrics and tracing. Once detected, I mitigate using key splitting, request coalescing, client-side spreading, or rate limiting, depending on whether the hotspot is read- or write-driven. The goal is to localize the impact before it turns into systemic failure.
