@@ -1,0 +1,2 @@
+- terms and phrases used by PE signal
+- AWS phrase: “Queues are my shock absorbers.”
