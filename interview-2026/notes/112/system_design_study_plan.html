@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Principal Engineer System Design Study Plan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            background: rgba(255,255,255,0.2);
+            height: 8px;
+            border-radius: 4px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: #4ade80;
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px 40px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .week {
+            margin-bottom: 40px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .week:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .week-header {
+            background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+            padding: 20px 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .week-header h3 {
+            color: #1e293b;
+            font-size: 1.3em;
+        }
+
+        .week-toggle {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.2s;
+        }
+
+        .week-toggle:hover {
+            background: #5568d3;
+        }
+
+        .week-content {
+            padding: 25px;
+            display: none;
+        }
+
+        .week-content.active {
+            display: block;
+        }
+
+        .topic {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .topic-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .checkbox {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .topic h4 {
+            color: #1e293b;
+            font-size: 1.1em;
+            flex-grow: 1;
+        }
+
+        .topic-details {
+            margin-left: 34px;
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        .topic-details ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .topic-details li {
+            margin-bottom: 5px;
+        }
+
+        .resources {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .resource-link {
+            display: inline-block;
+            margin-right: 15px;
+            margin-top: 5px;
+            padding: 6px 12px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.85em;
+            transition: background 0.2s;
+        }
+
+        .resource-link:hover {
+            background: #5568d3;
+        }
+
+        .time-estimate {
+            display: inline-block;
+            background: #fbbf24;
+            color: #78350f;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .notes-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #fef3c7;
+            border-radius: 8px;
+            border-left: 4px solid #fbbf24;
+        }
+
+        .notes-section h4 {
+            color: #78350f;
+            margin-bottom: 10px;
+        }
+
+        .notes-section textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 2px solid #fde68a;
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 0.95em;
+            resize: vertical;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ Principal Engineer System Design Study Plan</h1>
+            <p>12-Week Comprehensive Program</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="completedTopics">0</div>
+                <div class="stat-label">Topics Completed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalTopics">48</div>
+                <div class="stat-label">Total Topics</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="hoursSpent">0</div>
+                <div class="stat-label">Hours Studied</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="weeksRemaining">12</div>
+                <div class="stat-label">Weeks Remaining</div>
+            </div>
+        </div>
+
+        <div class="content" id="studyPlan">
+            <!-- Week 1-2: Foundations & Scale -->
+            <div class="week">
+                <div class="week-header" onclick="toggleWeek(this)">
+                    <h3>📚 Weeks 1-2: Architectural Foundations & Scale</h3>
+                    <button class="week-toggle">Expand</button>
+                </div>
+                <div class="week-content">
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Distributed Systems Fundamentals</h4>
+                            <span class="time-estimate">6-8 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            <ul>
+                                <li>CAP theorem deep dive and practical implications</li>
+                                <li>Consistency models: strong, eventual, causal</li>
+                                <li>Consensus algorithms: Paxos, Raft, Byzantine fault tolerance</li>
+                                <li>Time and ordering in distributed systems (Lamport clocks, vector clocks)</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Scalability Patterns & Techniques</h4>
+                            <span class="time-estimate">5-7 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            <ul>
+                                <li>Horizontal vs vertical scaling trade-offs</li>
+                                <li>Sharding strategies: hash-based, range-based, geography-based</li>
+                                <li>Load balancing algorithms and consistent hashing</li>
+                                <li>Replication strategies and eventual consistency patterns</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Data Storage Architecture</h4>
+                            <span class="time-estimate">6-8 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            <ul>
+                                <li>SQL vs NoSQL: when to use each</li>
+                                <li>Database internals: B-trees, LSM trees, indexes</li>
+                                <li>Data modeling for scale: denormalization, CQRS</li>
+                                <li>Data warehousing vs data lakes vs lakehouses</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Practical Exercise: Design Twitter/X at Scale</h4>
+                            <span class="time-estimate">4-5 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            Design end-to-end architecture covering: tweet ingestion, timeline generation, search, notifications, and analytics
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Week 3-4: Performance & Reliability -->
+            <div class="week">
+                <div class="week-header" onclick="toggleWeek(this)">
+                    <h3>⚡ Weeks 3-4: Performance Engineering & Reliability</h3>
+                    <button class="week-toggle">Expand</button>
+                </div>
+                <div class="week-content">
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Caching Strategies</h4>
+                            <span class="time-estimate">5-6 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            <ul>
+                                <li>Cache hierarchies: L1/L2/CDN/application/database</li>
+                                <li>Eviction policies: LRU, LFU, ARC</li>
+                                <li>Cache invalidation strategies and consistency</li>
+                                <li>Write-through vs write-back vs write-around</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>High Availability & Fault Tolerance</h4>
+                            <span class="time-estimate">6-8 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            <ul>
+                                <li>SLA/SLO/SLI design and error budgets</li>
+                                <li>Circuit breakers, bulkheads, and retry patterns</li>
+                                <li>Health checks and graceful degradation</li>
+                                <li>Multi-region active-active architectures</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Performance Optimization</h4>
+                            <span class="time-estimate">5-7 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            <ul>
+                                <li>Profiling and bottleneck identification</li>
+                                <li>Database query optimization and indexing strategies</li>
+                                <li>API design for performance: pagination, filtering, batch operations</li>
+                                <li>Asynchronous processing and message queues</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Practical Exercise: Design Netflix Video Streaming</h4>
+                            <span class="time-estimate">4-5 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            Focus on CDN strategy, adaptive bitrate streaming, regional failover, and handling millions of concurrent streams
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Week 5-6: Data & Processing -->
+            <div class="week">
+                <div class="week-header" onclick="toggleWeek(this)">
+                    <h3>📊 Weeks 5-6: Data Processing & Analytics</h3>
+                    <button class="week-toggle">Expand</button>
+                </div>
+                <div class="week-content">
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Stream Processing Architecture</h4>
+                            <span class="time-estimate">6-7 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            <ul>
+                                <li>Event-driven architectures and event sourcing</li>
+                                <li>Kafka, Kinesis, Pub/Sub comparison</li>
+                                <li>Stream processing frameworks: Flink, Spark Streaming</li>
+                                <li>Exactly-once semantics and idempotency</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Batch Processing & ETL</h4>
+                            <span class="time-estimate">5-6 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            <ul>
+                                <li>MapReduce paradigm and modern alternatives</li>
+                                <li>Data pipeline orchestration: Airflow, Prefect</li>
+                                <li>Delta Lake, Iceberg for ACID transactions</li>
+                                <li>Incremental processing and change data capture</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Real-time Analytics</h4>
+                            <span class="time-estimate">5-6 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            <ul>
+                                <li>OLAP vs OLTP database design</li>
+                                <li>Columnar databases: Clickhouse, Druid</li>
+                                <li>Time-series databases and aggregation strategies</li>
+                                <li>Approximate algorithms: HyperLogLog, Count-Min Sketch</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Practical Exercise: Design Uber's Real-time Pricing & Analytics</h4>
+                            <span class="time-estimate">4-5 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            Design surge pricing system, driver-rider matching, real-time dashboards for millions of concurrent users
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Week 7-8: Microservices & API Design -->
+            <div class="week">
+                <div class="week-header" onclick="toggleWeek(this)">
+                    <h3>🔌 Weeks 7-8: Microservices & API Architecture</h3>
+                    <button class="week-toggle">Expand</button>
+                </div>
+                <div class="week-content">
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Microservices Patterns</h4>
+                            <span class="time-estimate">6-7 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            <ul>
+                                <li>Service decomposition strategies and domain-driven design</li>
+                                <li>Inter-service communication: REST, gRPC, GraphQL</li>
+                                <li>Service mesh architecture: Istio, Linkerd</li>
+                                <li>Saga pattern for distributed transactions</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>API Design & Versioning</h4>
+                            <span class="time-estimate">5-6 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            <ul>
+                                <li>RESTful API best practices and HATEOAS</li>
+                                <li>GraphQL schema design and N+1 problem</li>
+                                <li>API versioning strategies and backward compatibility</li>
+                                <li>Rate limiting, throttling, and quota management</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Service Discovery & Configuration</h4>
+                            <span class="time-estimate">4-5 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            <ul>
+                                <li>Service registry patterns: Consul, Eureka</li>
+                                <li>Client-side vs server-side discovery</li>
+                                <li>Distributed configuration management</li>
+                                <li>Feature flags and canary deployments</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Practical Exercise: Design Shopify/Amazon Checkout System</h4>
+                            <span class="time-estimate">5-6 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            Multi-service architecture for inventory, payments, order processing, notifications with strong consistency requirements
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Week 9-10: Security & Observability -->
+            <div class="week">
+                <div class="week-header" onclick="toggleWeek(this)">
+                    <h3>🔒 Weeks 9-10: Security & Observability</h3>
+                    <button class="week-toggle">Expand</button>
+                </div>
+                <div class="week-content">
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Security Architecture</h4>
+                            <span class="time-estimate">6-8 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            <ul>
+                                <li>Authentication: OAuth 2.0, OIDC, JWT best practices</li>
+                                <li>Authorization: RBAC, ABAC, policy engines</li>
+                                <li>Encryption at rest and in transit</li>
+                                <li>DDoS mitigation and WAF strategies</li>
+                                <li>Zero-trust architecture principles</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Observability & Monitoring</h4>
+                            <span class="time-estimate">6-7 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            <ul>
+                                <li>Metrics, logs, and traces (three pillars)</li>
+                                <li>Distributed tracing: Jaeger, Zipkin</li>
+                                <li>Log aggregation and analysis</li>
+                                <li>SLI/SLO-based alerting strategies</li>
+                                <li>Chaos engineering principles</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Incident Management</h4>
+                            <span class="time-estimate">4-5 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            <ul>
+                                <li>On-call rotations and runbook design</li>
+                                <li>Incident response and post-mortem culture</li>
+                                <li>Disaster recovery and backup strategies</li>
+                                <li>Capacity planning and forecasting</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Practical Exercise: Design a Banking Platform</h4>
+                            <span class="time-estimate">5-6 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            Focus on security, compliance, audit trails, fraud detection, and financial transaction guarantees
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Week 11-12: Advanced Topics & Practice -->
+            <div class="week">
+                <div class="week-header" onclick="toggleWeek(this)">
+                    <h3>🚀 Weeks 11-12: Advanced Topics & Integration</h3>
+                    <button class="week-toggle">Expand</button>
+                </div>
+                <div class="week-content">
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Machine Learning Infrastructure</h4>
+                            <span class="time-estimate">5-6 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            <ul>
+                                <li>ML model serving architectures</li>
+                                <li>Feature stores and real-time inference</li>
+                                <li>A/B testing and experimentation platforms</li>
+                                <li>ML pipeline orchestration and monitoring</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Cost Optimization</h4>
+                            <span class="time-estimate">4-5 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            <ul>
+                                <li>Cloud cost modeling and FinOps</li>
+                                <li>Autoscaling strategies and spot instances</li>
+                                <li>Data transfer and storage optimization</li>
+                                <li>Multi-cloud and hybrid architectures</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Organizational & Leadership Topics</h4>
+                            <span class="time-estimate">4-5 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            <ul>
+                                <li>Technical decision-making frameworks</li>
+                                <li>Architecture documentation and ADRs</li>
+                                <li>Cross-team collaboration and influence</li>
+                                <li>Technical debt management</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="topic">
+                        <div class="topic-header">
+                            <input type="checkbox" class="checkbox" onchange="updateProgress()">
+                            <h4>Mock Interviews & Case Studies</h4>
+                            <span class="time-estimate">10-12 hours</span>
+                        </div>
+                        <div class="topic-details">
+                            <ul>
+                                <li>Design Instagram/TikTok feed algorithm</li>
+                                <li>Design Google Search infrastructure</li>
+                                <li>Design WhatsApp/Signal messaging platform</li>
+                                <li>Design Airbnb booking and availability system</li>
+                                <li>Practice presenting and defending architectural decisions</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="notes-section">
+                <h4>📝 Personal Notes & Reflections</h4>
+                <textarea id="personalNotes" placeholder="Track your insights, questions, and key learnings here..."></textarea>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="saveProgress()">💾 Save Progress</button>
+                <button class="btn btn-secondary" onclick="resetProgress()">🔄 Reset All</button>
+                <button class="btn btn-secondary" onclick="exportPlan()">📥 Export Plan</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleWeek(header) {
+            const content = header.nextElementSibling;
+            const button = header.querySelector('.week-toggle');
+            
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                button.textContent = 'Expand';
+            } else {
+                content.classList.add('active');
+                button.textContent = 'Collapse';
+            }
+        }
+
+        function updateProgress() {
+            const checkboxes = document.querySelectorAll('.checkbox');
+            const checked = document.querySelectorAll('.checkbox:checked').length;
+            const total = checkboxes.length;
+            const percentage = (checked / total) * 100;
+            
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('completedTopics').textContent = checked;
+            
+            // Estimate hours (average 5.5 hours per topic)
+            const hoursSpent = Math.round(checked * 5.5);
+            document.getElementById('hoursSpent').textContent = hoursSpent;
+            
+            // Calculate weeks remaining
+            const topicsPerWeek = 4;
+            const weeksRemaining = Math.ceil((total - checked) / topicsPerWeek);
+            document.getElementById('weeksRemaining').textContent = weeksRemaining;
+            
+            saveProgress();
+        }
+
+        function saveProgress() {
+            const checkboxes = document.querySelectorAll('.checkbox');
+            const progress = Array.from(checkboxes).map(cb => cb.checked);
+            const notes = document.getElementById('personalNotes').value;
+            
+            localStorage.setItem('studyPlanProgress', JSON.stringify(progress));
+            localStorage.setItem('studyPlanNotes', notes);
+            
+            // Visual feedback
+            const btn = event?.target;
+            if (btn) {
+                const originalText = btn.textContent;
+                btn.textContent = '✓ Saved!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                }, 1500);
+            }
+        }
+
+        function loadProgress() {
+            const savedProgress = localStorage.getItem('studyPlanProgress');
+            const savedNotes = localStorage.getItem('studyPlanNotes');
+            
+            if (savedProgress) {
+                const progress = JSON.parse(savedProgress);
+                const checkboxes = document.querySelectorAll('.checkbox');
+                checkboxes.forEach((cb, index) => {
+                    cb.checked = progress[index] || false;
+                });
+                updateProgress();
+            }
+            
+            if (savedNotes) {
+                document.getElementById('personalNotes').value = savedNotes;
+            }
+        }
+
+        function resetProgress() {
+            if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+                localStorage.removeItem('studyPlanProgress');
+                localStorage.removeItem('studyPlanNotes');
+                location.reload();
+            }
+        }
+
+        function exportPlan() {
+            const checkboxes = document.querySelectorAll('.checkbox');
+            const topics = document.querySelectorAll('.topic h4');
+            
+            let exportText = 'PRINCIPAL ENGINEER SYSTEM DESIGN STUDY PLAN\n';
+            exportText += '=' .repeat(50) + '\n\n';
+            
+            topics.forEach((topic, index) => {
+                const checked = checkboxes[index].checked;
+                const status = checked ? '[✓]' : '[ ]';
+                exportText += `${status} ${topic.textContent}\n`;
+            });
+            
+            exportText += '\n\nNOTES:\n' + document.getElementById('personalNotes').value;
+            
+            const blob = new Blob([exportText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'system-design-study-plan.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Auto-save notes
+        document.getElementById('personalNotes').addEventListener('input', () => {
+            clearTimeout(window.notesSaveTimeout);
+            window.notesSaveTimeout = setTimeout(saveProgress, 1000);
+        });
+
+        // Load progress on page load
+        window.addEventListener('load', loadProgress);
+    </script>
+</body>
+</html>
